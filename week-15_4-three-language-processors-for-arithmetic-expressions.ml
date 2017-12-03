@@ -182,6 +182,15 @@ struct
     &&
       (candidate_interpret (Source_program (Remainder (Literal 5, Literal 0)))
        = Expressible_msg "remainder of 5 over 0")
+    &&
+      (candidate_interpret (Source_program (Quotient ((Remainder (Literal 5, Literal 0)), Literal 0)))
+       = Expressible_msg "remainder of 5 over 0")
+    &&
+      (candidate_interpret (Source_program (Quotient ((Minus (Literal 5, Literal 0)), Literal 0)))
+       = Expressible_msg "quotient of 5 over 0")
+    &&
+      (candidate_interpret (Source_program (Quotient ((Minus (Literal 4, Literal 5)), Literal 0)))
+       = Expressible_msg "quotient of (-1) over 0")
   (* etc. *);;
   
   (* ********** *)
