@@ -327,11 +327,11 @@ struct
     (candidate_decode_execute Rem [22; 0; 1] =
        KO "remainder of 22 over 0") &&
     (candidate_decode_execute Rem [0; 22; 1] =
-       OK [0]) &&
+       OK [0; 1]) &&
     (candidate_decode_execute Sub [4; 5; 6] =
        OK [-1; 6]) &&
     (candidate_decode_execute Sub [-1; 2; -3] =
-       OK [-3; 3])
+       OK [-3; -3])
   (* etc. *);;
   
   let decode_execute bci ds =
@@ -393,7 +393,8 @@ struct
   (* ********** *)
   
   let int_test_run candidate_run =
-   (* int_test_run : target_program -> expressible_value *)
+    (* int_test_run : target_program -> expressible_value *)
+    (* Given tests: *)
       (candidate_run (Target_program [Push 0])
        = Expressible_int 0)
     &&
@@ -408,10 +409,24 @@ struct
     &&
       (candidate_run (Target_program [Push 10; Push 10; Sub])
        = Expressible_int 0)
+  (* Jaime's tests: *)
+    &&
+      (candidate_run (Target_program [Push 1; Push 2; Push 3; Sub; Quo])
+       = Expressible_int 1)
+    &&
+      (candidate_run (Target_program [Push 4; Push 3; Quo; Push 2; Push 1; Rem; Add])
+       = Expressible_int 1)
+    &&
+      (candidate_run (Target_program [Push (-1); Push (-2); Push (-3); Rem; Add; Push (-4); Rem])
+       = Expressible_int 0)
+    &&
+      (candidate_run (Target_program [Push 4; Push 5; Sub; Push 0; Quo])
+      = Expressible_int 0)
     (* etc. *);;
   
   let msg_test_run candidate_run =
-   (* msg_test_run : target_program -> expressible_value *)
+    (* msg_test_run : target_program -> expressible_value *)
+    (* Given tests: *)
       (candidate_run (Target_program [])
        = Expressible_msg "stack underflow at the end")
     &&
@@ -429,6 +444,19 @@ struct
     &&
       (candidate_run (Target_program [Push 0; Push 0; Rem])
        = Expressible_msg "remainder of 0 over 0")
+  (* Jaime's tests: *)
+    &&
+      (candidate_run (Target_program [Push 0; Push 1; Quo])
+       = Expressible_msg "quotient of 1 over 0")
+    &&
+      (candidate_run (Target_program [Push 0; Push 2; Rem])
+       = Expressible_msg "remainder of 2 over 0")
+    &&
+      (candidate_run (Target_program [Push 5; Push 5; Sub; Push 0; Quo])
+       = Expressible_msg "quotient of 0 over 0")
+    &&
+      (candidate_run (Target_program [Push 0; Quo; Push 4; Push 5; Sub])
+      = Expressible_msg "stack underflow for Quo")
     (* etc. *);;
   
   let run (Target_program bcis) =
@@ -492,7 +520,8 @@ struct
   (* ********** *)
   (* Task 4 *)  
   let test_compile candidate_compile =
-   (* test_compile : (source_program -> byte_code_program) -> bool *)
+    (* test_compile : (source_program -> byte_code_program) -> bool *)
+    (* Given tests: *)
       (candidate_compile (Source_program (Literal 32))
        = Target_program [Push 32])
     &&
@@ -510,6 +539,16 @@ struct
     &&
       (candidate_compile (Source_program (Quotient (Literal 4, Literal 5)))
        = Target_program [Push 4; Push 5; Quo])
+  (* Jaime's tests: *)
+    &&
+      (candidate_compile (Source_program (Quotient (Literal 1, (Minus (Literal 2, Literal 3)))))
+       = Target_program [Push 1; Push 2; Push 3; Sub; Quo])
+    &&
+      (candidate_compile (Source_program (Plus (Quotient (Literal 4, Literal 3), Remainder(Literal 2, Literal 1))))
+       = Target_program [Push 4; Push 3; Quo; Push 2; Push 1; Rem; Add])
+    &&
+      (candidate_compile (Source_program (Remainder (Plus (Literal (-1), Remainder (Literal (-2), Literal (-3))), Literal (-4))))
+      = Target_program [Push (-1); Push (-2); Push (-3); Rem; Add; Push (-4); Rem])
     (* etc. *);;
   
   let compile (Source_program e) =
