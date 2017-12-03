@@ -181,7 +181,7 @@ struct
        = Expressible_msg "quotient of 5 over 0")
     &&
       (candidate_interpret (Source_program (Remainder (Literal 5, Literal 0)))
-       = Expressible_msg "quotient of 5 over 0")
+       = Expressible_msg "remainder of 5 over 0")
   (* etc. *);;
   
   (* ********** *)
@@ -307,8 +307,23 @@ struct
     (candidate_decode_execute Add [10; 10] =
        OK [20]) &&
     (candidate_decode_execute Quo [0; 0] =
-       KO "quotient of 0 over 0")
-    (* etc. *);;
+       KO "quotient of 0 over 0") &&
+    (* Jaime's tests: *)
+    (candidate_decode_execute Add [2; 2; 2] =
+       OK [4; 2]) &&
+    (candidate_decode_execute Quo [42; 0] =
+       KO "quotient of 42 over 0") &&
+    (candidate_decode_execute Quo [0; 42] =
+       OK [0]) &&
+    (candidate_decode_execute Rem [22; 0; 1] =
+       KO "remainder of 22 over 0") &&
+    (candidate_decode_execute Rem [0; 22; 1] =
+       OK [0]) &&
+    (candidate_decode_execute Sub [4; 5; 6] =
+       OK [-1; 6]) &&
+    (candidate_decode_execute Sub [-1; 2; -3] =
+       OK [-3; 3])
+  (* etc. *);;
   
   let decode_execute bci ds =
     (* decode_execute : byte_code_instruction -> data_stack -> result_of_execution *)
