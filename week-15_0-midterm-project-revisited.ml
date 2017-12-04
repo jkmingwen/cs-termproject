@@ -22,9 +22,9 @@
 *)
 
 (*
-   name:
-   student ID number:
-   e-mail address:
+   name: Wee Jerrick
+   student ID number: A0140169J
+   e-mail address: weejerrick@u.yale-nus.edu.sg
 *)
 
 (*
@@ -499,6 +499,19 @@ let test_embed_left_binary_tree'_into_binary_tree' candidate =
      depth, using a fold-right function.
   *)
 
+  let test_left_index candidate =
+    (* test_left_index : (left_binary_tree' * int -> 'a option) -> bool *)
+    (candidate (Left_Leaf') 0 = None)
+    && (candidate (Left_Node' (Left_Leaf', 0)) 0 = Some 0)
+    && (candidate (Left_Node' (Left_Leaf', 1)) 1 = None)
+    && (candidate (Left_Node' (Left_Node' (Left_Node' (Left_Node' (Left_Leaf', 3), 2), 1), 0)) 0 = Some 0)  
+    && (candidate (Left_Node' (Left_Node' (Left_Node' (Left_Node' (Left_Leaf', 3), 2), 1), 0)) 1 = Some 1)
+    && (candidate (Left_Node' (Left_Node' (Left_Node' (Left_Node' (Left_Leaf', 3), 2), 1), 0)) 2 = Some 2) 
+    && (candidate (Left_Node' (Left_Node' (Left_Node' (Left_Node' (Left_Leaf', 3), 2), 1), 0)) 3 = Some 3)
+    && (candidate (Left_Node' (Left_Node' (Left_Node' (Left_Node' (Left_Leaf', 3), 2), 1), 0)) 4 = None)
+  (* etc *)
+  ;;
+    
   let left_index lt_init n_init =
    (* left_index : 'a left_binary_tree' -> int -> 'a option *)
     if n_init < 0
@@ -520,12 +533,10 @@ let test_embed_left_binary_tree'_into_binary_tree' candidate =
                                    fun n ->
                                    if n = 0
                                    then Some v
-                                   else match ih (n-1) with
-                                        | Some v' ->
-                                           Some v'
-                                        | None ->
-                                           None)
+                                   else ih (n-1)) 
                                  lt_init) n_init;;
+    
+    let () = assert (test_left_index left_index_alt)
 
   (* ********** *)
 

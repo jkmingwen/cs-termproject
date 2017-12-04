@@ -100,6 +100,7 @@ sig
 
   val test_compile : (source_program -> target_program) -> bool
   val compile : source_program -> target_program
+  val compile_alt : source_program -> target_program
 
   val commutativity_test : (source_program -> expressible_value) ->
                            (source_program -> target_program) ->
