@@ -705,11 +705,11 @@ struct
     interpret test2;;
     run (compile (test2));;
   let test3 = Source_program (Quotient (Literal 23, Literal 55));;
+    interpret test3;;
+    run (compile (test3));;
+  let test4 = Source_program (Remainder (Literal 3, Literal 0));;
     interpret test4;;
     run (compile (test4));;
-  let test4 = Source_program (Remainder (Literal 3, Literal 0));;
-    interpret test5;;
-    run (compile (test5));;
 
   (* ********** *)
 
