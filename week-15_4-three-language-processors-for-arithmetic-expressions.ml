@@ -446,7 +446,17 @@ struct
        = Expressible_int 0)
     &&
       (candidate_run (Target_program [Push 4; Push 5; Sub; Push 0; Quo])
-      = Expressible_int 0)
+       = Expressible_int 0)
+  (* Zhongxuan's tests: *)
+    &&
+      (candidate_run (Target_program [Push 4; Push 5; Push 10; Quo; Sub])
+       = Expressible_int (-2))
+    &&
+      (candidate_run (Target_program [Push 5; Push (-33); Rem; Push 8; Add])
+       = Expressible_int 5)
+    &&
+      (candidate_run (Target_program [Push (-3); Push (-10); Push 16; Rem; Quo])
+       = Expressible_int (-2))
     (* etc. *);;
   
   let msg_test_run candidate_run =
@@ -481,7 +491,17 @@ struct
        = Expressible_msg "quotient of 0 over 0")
     &&
       (candidate_run (Target_program [Push 0; Quo; Push 4; Push 5; Sub])
-      = Expressible_msg "stack underflow for Quo")
+       = Expressible_msg "stack underflow for Quo")
+  (* Zhongxuan's tests: *)
+    &&
+      (candidate_run (Target_program [Push 0; Push 0; Push 0; Quo; Rem])
+       = Expressible_msg "quotient of 0 over 0")
+    &&
+      (candidate_run (Target_program [Push 3; Push 2; Push 1; Add; Sub; Quo])
+       = Expressible_msg "stack underflow for Quo")
+    &&
+      (candidate_run (Target_program [Push 3; Push 2; Push 1; Add])
+       = Expressible_msg "stack overflow at the end")
     (* etc. *);;
   
   let run (Target_program bcis) =
@@ -573,7 +593,17 @@ struct
        = Target_program [Push 4; Push 3; Quo; Push 2; Push 1; Rem; Add])
     &&
       (candidate_compile (Source_program (Remainder (Plus (Literal (-1), Remainder (Literal (-2), Literal (-3))), Literal (-4))))
-      = Target_program [Push (-1); Push (-2); Push (-3); Rem; Add; Push (-4); Rem])
+       = Target_program [Push (-1); Push (-2); Push (-3); Rem; Add; Push (-4); Rem])
+  (* Zhongxuan's tests: *)
+    &&
+      (candidate_compile (Source_program (Minus (Plus (Literal 5, Literal 10), Quotient (Literal 15, Literal 20))))
+       = Target_program [Push 5; Push 10; Add; Push 15; Push 20; Quo; Sub])
+    &&
+      (candidate_compile (Source_program (Plus (Remainder (Literal 5, Literal 10), Literal 15)))
+       = Target_program [Push 5; Push 10; Rem; Push 15; Add])
+    &&
+      (candidate_compile (Source_program (Quotient (Literal 5, Plus (Literal 10, Literal 15))))
+      = Target_program [Push 5; Push 10; Push 15; Add; Quo])
     (* etc. *);;
   
   let compile (Source_program e) =
@@ -586,19 +616,19 @@ struct
       | Plus (e1, e2) ->
          let bcis1 = translate e1
          and bcis2 = translate e2
-         in (List.append (List.append bcis1 bcis2) [Add])
+         in (List.append bcis1 (List.append bcis2 [Add]))
       | Minus (e1, e2) ->
          let bcis1 = translate e1
          and bcis2 = translate e2
-         in (List.append (List.append bcis1 bcis2) [Sub])
+         in (List.append bcis1 (List.append bcis2 [Sub]))
       | Quotient (e1, e2) ->
          let bcis1 = translate e1
          and bcis2 = translate e2
-         in (List.append (List.append bcis1 bcis2) [Quo])
+         in (List.append bcis1 (List.append bcis2 [Quo]))
       | Remainder (e1, e2) ->
          let bcis1 = translate e1
          and bcis2 = translate e2
-         in (List.append (List.append bcis1 bcis2) [Rem])
+         in (List.append bcis1 (List.append bcis2 [Rem]))
     in Target_program (translate e);;
 
   let () = assert (test_compile compile);;
@@ -651,21 +681,21 @@ struct
       | Literal n ->
          [Push n]
       | Plus (e1, e2) ->
-         let bcis1 = translate e2
-         and bcis2 = translate e1
-         in (List.append (List.append bcis1 bcis2) [Add])
+         let bcis2 = translate e2
+         and bcis1 = translate e1
+         in (List.append bcis2 (List.append bcis1 [Add]))
       | Minus (e1, e2) ->
-         let bcis1 = translate e2
-         and bcis2 = translate e1
-         in (List.append (List.append bcis1 bcis2) [Sub])
+         let bcis2 = translate e2
+         and bcis1 = translate e1
+         in (List.append bcis2 (List.append bcis1 [Sub]))
       | Quotient (e1, e2) ->
-         let bcis1 = translate e2
-         and bcis2 = translate e1
-         in (List.append (List.append bcis1 bcis2) [Quo])
+         let bcis2 = translate e2
+         and bcis1 = translate e1
+         in (List.append bcis2 (List.append bcis1 [Quo]))
       | Remainder (e1, e2) ->
-         let bcis1 = translate e2
-         and bcis2 = translate e1
-         in (List.append (List.append bcis1 bcis2) [Rem])
+         let bcis2 = translate e2
+         and bcis1 = translate e1
+         in (List.append bcis2 (List.append bcis1 [Rem]))
     in Target_program (translate e);;
           
   let test1 = Source_program (Minus (Literal 58, Literal 74));;
@@ -674,13 +704,10 @@ struct
   let test2 = Source_program (Plus (Literal 71, Literal 54));;
     interpret test2;;
     run (compile (test2));;
-  let test3 = Source_program (Plus (Literal 63, Literal 61));;
-    interpret test3;;
-    run (compile (test3));;
-  let test4 = Source_program (Quotient (Literal 23, Literal 55));;
+  let test3 = Source_program (Quotient (Literal 23, Literal 55));;
     interpret test4;;
     run (compile (test4));;
-  let test5 = Source_program (Quotient (Literal 3, Literal 66));;
+  let test4 = Source_program (Remainder (Literal 3, Literal 0));;
     interpret test5;;
     run (compile (test5));;
 
@@ -691,3 +718,4 @@ end;;
 (* end of week-15_4-three-language-processors-for-arithmetic-expressions.ml *)
 
 "week-15_4-three-language-processors-for-arithmetic-expressions.ml"
+
