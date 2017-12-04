@@ -16,9 +16,9 @@
 *)
 
 (*
-   name:
-   student ID number:
-   e-mail address:
+   name: Khwa Zhong Xuan
+   student ID number: A0160801U
+   e-mail address: zhongxuan@u.yale-nus.edu.sg
 *)
 
 (*
@@ -165,6 +165,16 @@ struct
     &&
       (candidate_interpret (Source_program (Quotient ((Remainder ((Plus (Literal 10, Literal 10)), Literal 15)), Literal 5)))
        = Expressible_int 1)
+  (* Zhongxuan's Tests: *)
+    &&
+      (candidate_interpret (Source_program (Minus (Literal 20, ((Plus (Literal 15, Literal 10))))))
+       = Expressible_int (-5))
+    &&
+      (candidate_interpret (Source_program (Quotient ((Minus (Literal 10, Literal 20)), Literal 2)))
+       = Expressible_int (-5))
+    &&
+      (candidate_interpret (Source_program (Remainder ((Plus (Literal (-10), Literal (-15))), Literal 6)))
+      = Expressible_int (-1))
   (* etc. *);;
   
   let msg_test_interpret candidate_interpret =
@@ -191,6 +201,13 @@ struct
     &&
       (candidate_interpret (Source_program (Quotient ((Minus (Literal 4, Literal 5)), Literal 0)))
        = Expressible_msg "quotient of (-1) over 0")
+  (* Zhongxuan's tests: *)
+    &&
+      (candidate_interpret (Source_program (Remainder ((Quotient (Literal 5, Literal 0)), Literal 0)))
+       = Expressible_msg "quotient of 5 over 0")
+    &&
+      (candidate_interpret (Source_program (Plus ((Remainder (Literal 5, Literal 0)), (Quotient (Literal 10, Literal 0)))))
+      = Expressible_msg "remainder of 5 over 0")
   (* etc. *);;
   
   (* ********** *)
@@ -331,62 +348,70 @@ struct
     (candidate_decode_execute Sub [4; 5; 6] =
        OK [-1; 6]) &&
     (candidate_decode_execute Sub [-1; 2; -3] =
-       OK [-3; -3])
+       OK [-3; -3]) &&
+  (* Zhongxuan's tests: *)
+    (candidate_decode_execute Sub [] =
+       KO "stack underflow for Sub") &&
+    (candidate_decode_execute Quo [10] =
+       KO "stack underflow for Quo") &&
+    (candidate_decode_execute Rem [20] =
+       KO "stack underflow for Rem") &&
+    (candidate_decode_execute Add [20; -30; 10] =
+       OK [-10; 10]) &&
+    (candidate_decode_execute Rem [20; 5] =
+       OK [0]) &&
+    (candidate_decode_execute Quo [20; 50] =
+       OK [0])
   (* etc. *);;
   
   let decode_execute bci ds =
     (* decode_execute : byte_code_instruction -> data_stack -> result_of_execution *)
     match bci with
     | Push n ->
-       OK (n :: ds)
+       OK (n::ds)
     | Add ->
        (match ds with
         | [] ->
            KO "stack underflow for Add"
-        | n1 :: ds' ->
-           (match ds' with
-            | [] ->
-               KO "stack underflow for Add"
-            | n2 :: ds'' ->
-               let n3 = n1 + n2
-               in OK (n3 :: ds'')))
+        | [_] ->
+           KO "stack underflow for Add"
+        | n1::n2::ds'' ->
+           let n3 = n1 + n2
+           in OK (n3::ds''))
     | Sub ->
        (match ds with
         | [] ->
            KO "stack underflow for Sub"
-        | n1 :: ds' ->
-           (match ds' with
-            | [] ->
-               KO "stack underflow for Sub"
-            | n2 :: ds'' ->
-               let n3 = n1 - n2
-               in OK (n3 :: ds'')))
+        | [_] ->
+           KO "stack underflow for Sub"
+        | n1::n2::ds'' ->
+           let n3 = n1 - n2
+           in OK (n3::ds''))
     | Quo ->
        (match ds with
         | [] ->
            KO "stack underflow for Quo"
-        | n1 :: ds' ->
-           (match ds' with
-            | [] ->
-               KO "stack underflow for Quo"
-            | n2 :: ds'' ->
-               if n2 = 0
-               then KO ("quotient of " ^ (show_int n1) ^ " over 0")
-               else let n3 = n1 / n2
-                    in OK (n3 :: ds'')))
+        | [_] ->
+           KO "stack underflow for Quo"
+        | n1::n2::ds'' ->
+           if n2 = 0
+           then KO ("quotient of " ^ string_of_int n1 ^ " over 0")
+           else 
+             let n3 = n1 / n2
+             in OK (n3 :: ds''))
     | Rem ->
        (match ds with
         | [] ->
            KO "stack underflow for Rem"
-        | n1 :: ds' ->
-           (match ds' with
-            | [] ->
-               KO "stack underflow for Rem"
-            | n2 :: ds'' ->
-               if n2 = 0
-               then KO ("remainder of " ^ (show_int n1) ^ " over 0")
-               else let n3 = n1 mod n2
-                    in OK (n3 :: ds'')));;
+        | [_] ->
+           KO "stack underflow for Rem"
+        | n1::n2::ds'' ->
+           if n2 = 0
+           then KO ("remainder of " ^ string_of_int n1 ^ " over 0")
+           else 
+             let n3 = n1 mod n2
+             in OK (n3::ds''))
+  ;;
   
   let () = assert (test_decode_execute decode_execute);;
   
