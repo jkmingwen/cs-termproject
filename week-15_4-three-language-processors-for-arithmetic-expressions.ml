@@ -641,38 +641,6 @@ struct
        Can implement a compile_right_to_left function to illustrate point
    *)
 
-  (* ********** *)
-  (* Task 6 *)
-  let commutativity_test candidate_interpret candidate_compile candidate_run p =
-   (* commutativity_test : (source_program -> expressible_value) ->
-                           (source_program -> target_program) ->
-                           (target_program -> expressible_value) ->
-                           source_program ->
-                           bool *)
-    candidate_interpret p = candidate_run (candidate_compile p);;
-
-  (* ********** *)
-
-  let generate_random_arithmetic_expression n_init =
-   (* generate_random_arithmetic_expression : int -> arithmetic_expression *)
-    if n_init < 0
-    then raise (Failure "generate_random_arithmetic_expression")
-    else let rec generate n =
-           if n = 0
-           then Literal (Random.int 100)
-           else match Random.int 5 with
-                | 0 ->
-                   Literal ~-(Random.int 100)
-                | 1 ->
-                   Plus (generate (n - 1), generate (n - 1))
-                | 2 ->
-                   Minus (generate (n - 1), generate (n - 1))
-                | 3 ->
-                   Quotient (generate (n - 1), generate (n - 1))
-                | _ ->
-                   Remainder (generate (n - 1), generate (n - 1))
-         in generate n_init;;
-    
   let compile_alt (Source_program e) =
     (* compile : source_program -> target_program *)
     let rec translate e =
@@ -697,6 +665,54 @@ struct
          and bcis1 = translate e1
          in (List.append bcis2 (List.append bcis1 [Rem]))
     in Target_program (translate e);;
+    
+  (* ********** *)
+  (* Task 6 *)
+  let commutativity_test candidate_interpret candidate_compile candidate_run p =
+   (* commutativity_test : (source_program -> expressible_value) ->
+                           (source_program -> target_program) ->
+                           (target_program -> expressible_value) ->
+                           source_program ->
+                           bool *)
+    candidate_interpret p = candidate_run (candidate_compile p);;
+
+  (* ********** *)
+
+let generate_random_arithmetic_expression n_init =
+   (* generate_random_arithmetic_expression : int -> arithmetic_expression *)
+    if n_init < 0
+    then raise (Failure "generate_random_arithmetic_expression")
+    else let rec generate n =
+           if n = 0
+           then Literal (Random.int 100)
+           else match Random.int 5 with
+                | 0 ->
+                   Literal ~-(Random.int 100)
+                | 1 ->
+                   Plus (generate (n - 1), generate (n - 1))
+                | 2 ->
+                   Minus (generate (n - 1), generate (n - 1))
+                | 3 ->
+                   Quotient (generate (n - 1), generate (n - 1))
+                | _ ->
+                   Remainder (generate (n - 1), generate (n - 1))
+         in generate n_init;;
+    
+  let test_commutativity candidate_interpret candidate_compile candidate_run =
+    (commutativity_test candidate_interpret candidate_compile candidate_run (Source_program (Minus (Literal 58, Literal 74))))
+    &&
+      (commutativity_test candidate_interpret candidate_compile candidate_run (Source_program (Plus (Literal 71, Literal 54))))
+    &&
+      (commutativity_test candidate_interpret candidate_compile candidate_run (Source_program (Quotient (Literal 23, Literal 55))))
+    &&
+      (commutativity_test candidate_interpret candidate_compile candidate_run (Source_program (Remainder (Literal 3, Literal 0))))
+    &&
+      (commutativity_test candidate_interpret candidate_compile candidate_run (Source_program (generate_random_arithmetic_expression 5)))
+    &&
+      (commutativity_test candidate_interpret candidate_compile candidate_run (Source_program (generate_random_arithmetic_expression 6)))
+  (* etc *) ;;
+
+  (*  let () = assert (test_commutativity interpret compile run);; *)
           
   let test1 = Source_program (Minus (Literal 58, Literal 74));;
     interpret test1;;
@@ -711,6 +727,8 @@ struct
     interpret test4;;
     run (compile (test4));;
 
+  let () = assert (test_commutativity interpret compile_alt run);;
+  
   (* ********** *)
 
 end;;
