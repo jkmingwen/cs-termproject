@@ -16,9 +16,9 @@
 *)
 
 (*
-   name:
-   student ID number:
-   e-mail address:
+   name: Khwa Zhong Xuan
+   student ID number: A0160801U
+   e-mail address: zhongxuan@u.yale-nus.edu.sg
 *)
 
 (*
@@ -515,7 +515,17 @@ let test_embed_left_binary_tree'_into_binary_tree' candidate =
 
   let left_index_alt lt_init n_init =
    (* left_index_alt : 'a left_binary_tree' -> int -> 'a option *)
-    raise (Not_implemented_yet "left_index_alt");;
+    (fold_right_left_binary_tree' (fun n -> None)
+                                 (fun (ih, v) ->
+                                   fun n ->
+                                   if n = 0
+                                   then Some v
+                                   else match ih (n-1) with
+                                        | Some v' ->
+                                           Some v'
+                                        | None ->
+                                           None)
+                                 lt_init) n_init;;
 
   (* ********** *)
 
@@ -665,7 +675,14 @@ let test_embed_left_binary_tree'_into_binary_tree' candidate =
   
   let left_rotate t =
    (* left_rotate : 'a binary_tree' -> 'a left_binary_tree' *)
-    raise (Not_implemented_yet "left_rotate");;
+    match t with
+    | Leaf' ->
+       Left_Leaf'
+    | Node' (t1, n, t2) ->
+       let t1' = left_rotate t1
+       and t2' = left_rotate t2
+       in left_stitch (Left_Node' (t1', n)) t2'
+  ;;
   
   (*
   let () = assert (test_left_rotate_int left_rotate);;
@@ -673,7 +690,10 @@ let test_embed_left_binary_tree'_into_binary_tree' candidate =
 
   let left_rotate_alt t =
    (* left_rotate_alt : 'a binary_tree' -> 'a left_binary_tree' *)
-    raise (Not_implemented_yet "left_rotate_alt");;
+    fold_right_binary_tree' Left_Leaf'
+                            (fun (ih1, v, ih2) -> left_stitch_alt (Left_Node' (ih1, v)) ih2)
+                            t_init
+  ;;
   
   (*
   let () = assert (test_left_rotate_int left_rotate_alt);;
