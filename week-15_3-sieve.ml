@@ -187,6 +187,25 @@ let test_partial_sums candidate =
   (* Defining initial stream with examples *)
   let initial_stream = make_stream delay_name 1 (fun i -> 0);;
 
+  let test_hypothesis candidate_function =
+    (stream_prefix (candidate_function initial_stream 0) 5
+     = [1; 1; 1; 1; 1])
+    &&
+      (stream_prefix (candidate_function initial_stream 1) 6
+       = [1; 2; 3; 4; 5; 6])
+    &&
+      (stream_prefix (candidate_function initial_stream 2) 6
+       = [1; 4; 9; 16; 25; 36])
+    &&
+      (stream_prefix (candidate_function initial_stream 3) 5
+       = [1; 8; 27; 64; 125])
+    &&
+      (stream_prefix (candidate_function initial_stream 4) 6
+       = [1; 16; 81; 256; 625; 1296])
+  (* etc. *);;
+
+    let () = assert (test_hypothesis sieve);;
+
   (*
 
 # stream_prefix (sieve initial_stream 0) 5;;
@@ -204,7 +223,26 @@ let test_partial_sums candidate =
 
   (* Question 5 *)
   (* Defining initial stream with examples *)
-  let alt_initial_stream = make_stream delay_name 10 (fun i -> 0);;
+    let alt_initial_stream = make_stream delay_name 10 (fun i -> 0);;
+
+    let test_hypothesis_ten candidate_function =
+      (stream_prefix (candidate_function initial_stream 0) 5
+       = [10; 10; 10; 10; 10])
+      &&
+        (stream_prefix (candidate_function initial_stream 1) 6
+         = [10; 20; 30; 40; 50; 60])
+      &&
+        (stream_prefix (candidate_function initial_stream 2) 6
+         = [10; 40; 90; 160; 250; 360])
+      &&
+        (stream_prefix (candidate_function initial_stream 3) 5
+         = [10; 80; 270; 640; 1250])
+      &&
+        (stream_prefix (candidate_function initial_stream 4) 6
+         = [10; 160; 810; 2560; 6250; 12960])
+    (* etc. *);;
+
+    let () = assert (test_hypothesis sieve);;
 
 (*
 # stream_prefix (sieve alt_initial_stream 0) 5;;
