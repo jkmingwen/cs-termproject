@@ -6,15 +6,15 @@
 (* ********** *)
 
 (*
-   name:
+   name: 
    student ID number:
    e-mail address:
 *)
 
 (*
-   name:
-   student ID number:
-   e-mail address:
+   name: Khwa Zhong Xuan
+   student ID number: A0160801U
+   e-mail address: zhongxuan@u.yale-nus.edu.sg
 *)
 
 (*
@@ -127,7 +127,7 @@ struct
     in max_aux xs 0
   ;;
 
-  let rec add xs ys =
+  let rec conjoin xs ys =
     match xs with
     | [] ->
        ys
@@ -136,13 +136,13 @@ struct
        | [] ->
           xs
        | y :: ys' ->
-          (x + y) :: (add xs' ys')
+          (x + y) :: (conjoin xs' ys')
   ;;
     
   let width t =
     (* width : 'a binary_tree -> int *)
     maximum (fold_right_binary_tree (fun v -> [1])
-                                     (fun (ih1, ih2) -> [1] @ (add ih1 ih2))
+                                     (fun (ih1, ih2) -> List.append [1] (conjoin ih1 ih2))
                                      t);;
 
   let () = assert (test_width_int width);;
