@@ -18,9 +18,9 @@
 *)
 
 (*
-   name:
-   student ID number:
-   e-mail address:
+   name: Wee Jerrick
+   student ID number: A0140169J
+   e-mail address: weejerrick@u.yale-nus.edu.sg
 *)
 
 (*

@@ -22,9 +22,9 @@
 *)
 
 (*
-   name:
-   student ID number:
-   e-mail address:
+   name: Wee Jerrick
+   student ID number: A0140169J
+   e-mail address: weejerrick@u.yale-nus.edu.sg
 *)
 
 (*
@@ -699,21 +699,9 @@ let generate_random_arithmetic_expression n_init =
                    Remainder (generate (n - 1), generate (n - 1))
          in generate n_init;;
     
-  let test_commutativity candidate_interpret candidate_compile candidate_run =
-    (commutativity_test candidate_interpret candidate_compile candidate_run (Source_program (Minus (Literal 58, Literal 74))))
-    &&
-      (commutativity_test candidate_interpret candidate_compile candidate_run (Source_program (Plus (Literal 71, Literal 54))))
-    &&
-      (commutativity_test candidate_interpret candidate_compile candidate_run (Source_program (Quotient (Literal 23, Literal 55))))
-    &&
-      (commutativity_test candidate_interpret candidate_compile candidate_run (Source_program (Remainder (Literal 3, Literal 0))))
-    &&
-      (commutativity_test candidate_interpret candidate_compile candidate_run (Source_program (generate_random_arithmetic_expression 5)))
-    &&
-      (commutativity_test candidate_interpret candidate_compile candidate_run (Source_program (generate_random_arithmetic_expression 6)))
-  (* etc *) ;;
+  ;;
 
-  (*  let () = assert (test_commutativity interpret compile run);; *)
+  let () = assert (test_commutativity interpret compile run);;
           
   let test1 = Source_program (Minus (Literal 58, Literal 74));;
     interpret test1;;
